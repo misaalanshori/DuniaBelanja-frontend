@@ -8,6 +8,9 @@ export default {
     extend: {
       colors: {
         'dbblue': '#004aad'
+      },
+      fontFamily: {
+        'sans': ['Poppins', 'sans-serif']
       }
     },
   },
