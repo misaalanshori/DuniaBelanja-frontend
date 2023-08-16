@@ -38,7 +38,7 @@ function ProductCard({ image, name, rating, sold }) {
 }
 
 function StoreCategories() {
-    const [selectedCategory, setSelectedCategory] = useState(0);
+    const [selectedCategory, setSelectedCategory] = useState(-1);
     const [searchQuery, setSearchQuery] = useState("");
     const dataRef = useRef({})
 
@@ -176,9 +176,10 @@ function StoreCategories() {
             "Category-D": [],
             
         }
+        setSelectedCategory(0);
     },[])
     return (
-        <div className="w-11/12 lg:w-4/6 h-[54rem] sm:h-[48rem] flex flex-col justify-between items-stretch gap-4" >
+        <div className="w-11/12 lg:w-4/6 h-[54rem] sm:h-[48rem] flex flex-col items-center sm:items-start gap-4" >
             <div className="flex flex-row items-center gap-2 w-64 h-10 px-3 rounded-xl bg-gray-200 text-dbblue">
                 <MdSearch size="24px"/>
                 <input className="w-full h-full bg-transparent" type="text" placeholder="Search..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)}/>
