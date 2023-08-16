@@ -251,7 +251,7 @@ export default function Homepage() {
                 <StoreCategories/>
             </div>
 
-            <div>
+            <div className="relative">
                 <div className="flex flex-col md:flex-row w-full justify-center items-center gap-6 bg-gradient-to-b from-white to-blue-300 pt-16 pb-8">
                     <div className="flex flex-col w-4/5 md:w-2/5 gap-6">
                         <h1 className="text-4xl font-semibold">BEST FEATURE<br/>FOR YOU</h1>
@@ -288,7 +288,7 @@ export default function Homepage() {
                     </div>
                     <img src={bestfeatures} className="w-64 min-[500px]:w-96 object-contain"/>
                 </div>
-                <div className="w-full h-16 absolute bg-blue-300 border-none rounded-b-full"></div>
+                <div className="w-full h-16 absolute -bottom-16 bg-blue-300 border-none rounded-b-full"></div>
             </div>
             
             
@@ -322,7 +322,7 @@ export default function Homepage() {
                 </div>  
             </div>
 
-            <div className="flex flex-col items-center">
+            <div className="flex flex-col items-center relative">
                 <div className="flex flex-col justify-center items-center lg:items-start p-16 w-fit gap-4">
                     <h1 className="text-2xl font-semibold w-fit text-center">What Customer Say About Us</h1>
                     <div className="text-dbblue flex flex-row flex-wrap gap-4 justify-center">
@@ -346,7 +346,7 @@ export default function Homepage() {
                         </div>
                     </div>
                 </div>
-                <div></div>
+                <div className="w-full h-8 rounded-b-full bg-white absolute -bottom-8"></div>
             </div>
 
             <div className="flex flex-col md:flex-row justify-center items-center bg-black text-white py-16 gap-12">
