@@ -216,7 +216,7 @@ export default function Homepage() {
                     <Link className="w-full flex items-center justify-center bg-black bg-opacity-0 hover:bg-opacity-50" to="/">PRODUCT</Link>
                     <img className="hidden sm:block h-20 p-4" src={DBLogo} alt="Dunia Belanja"></img>
                     <Link className="w-full flex items-center justify-center bg-black bg-opacity-0 hover:bg-opacity-50" to="/">REGISTER</Link>
-                    <Link className="w-full flex items-center justify-center bg-black bg-opacity-0 hover:bg-opacity-50" to="/">LOGIN</Link>
+                    <Link className="w-full flex items-center justify-center bg-black bg-opacity-0 hover:bg-opacity-50" to="/login">LOGIN</Link>
                 </div>
             </div>
             

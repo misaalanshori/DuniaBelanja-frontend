@@ -2,6 +2,7 @@ import { useState } from 'react'
 import './App.css'
 import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
 import Homepage from './homepage/Homepage';
+import Loginpage from './login/Login';
 
 function App() {
 
@@ -9,6 +10,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Homepage />} />
+        <Route path="/login" element={<Loginpage/>} />
         <Route path="*" element={<h1>404</h1>} />
       </Routes>
     </BrowserRouter>
