@@ -39,8 +39,46 @@ function ProductCard({ image, name, rating, sold }) {
 
 function StoreCategories() {
     const [selectedCategory, setSelectedCategory] = useState(-1);
+    const [products, setProducts] = useState([]);
     const [searchQuery, setSearchQuery] = useState("");
-    const dataRef = useRef({})
+    const [loadState, setLoadState] = useState("loading");
+    const categoriesRef = useRef([])
+    const productsRef = useRef({})
+    const message = {
+        "loading": "Loading products...",
+        "loaded": "This category is empty",
+        "error": "Failed to load products"
+    }
+
+    async function loadCategories() {
+        const response = await fetch(import.meta.env.VITE_API + "/api/categories");
+        const data = await response.json();
+        if (data.code == 200) {
+            categoriesRef.current = data.data;
+            setSelectedCategory(0);
+        }
+    }
+
+    async function loadProducts() {
+        setLoadState("loading");
+        setProducts([]);
+        if (productsRef.current[selectedCategory]) {
+            setProducts(productsRef.current[selectedCategory]);
+            setLoadState("loaded");
+        } else {
+            const response = await fetch(import.meta.env.VITE_API + "/api/products?category_id=" + categoriesRef.current[selectedCategory].id);
+            const data = await response.json();
+            if (data.code == 200) {
+                setProducts(data.data.list);
+                // Store the products in a ref so we don't have to fetch it again
+                productsRef.current[selectedCategory] = data.data.list;
+                setLoadState("loaded");
+            } else {
+                setLoadState("error");
+            }
+        }
+        
+    }
 
     function prevCategory() {
         if (selectedCategory > 0) {
@@ -48,7 +86,7 @@ function StoreCategories() {
         }
     }
     function nextCategory() {
-        if (selectedCategory < Object.keys(dataRef.current).length - 1) {
+        if (selectedCategory < categoriesRef.current.length - 1) {
             setSelectedCategory(selectedCategory + 1);
         }
     }
@@ -59,125 +97,16 @@ function StoreCategories() {
         return searchWords.every(word => words.some(w => w.toLowerCase().includes(word.toLowerCase())))
     }
 
-    // dummy data, actual data may be different
     useEffect(()=>{
-        dataRef.current = {
-            "Clothing": [
-                {
-                    name: "VILOVE Women Hawaii Shirts Soft Cool Floral",
-                    image: product1,
-                    rating: 4.9,
-                    sold: 2900
-                },
-                {
-                    name: "Fantaslook V Neck T Shirts for Women Floral Summer",
-                    image: product2,
-                    rating: 4.9,
-                    sold: 2900
-                },
-                {
-                    name: "BELLZELY Womens Shirts Short Sleeve",
-                    image: product3,
-                    rating: 4.9,
-                    sold: 2900
-                },
-                {
-                    name: "Casual Men Shirt Long Sleeve Solid Color V Neck",
-                    image: product4,
-                    rating: 4.9,
-                    sold: 2900
-                },
-                {
-                    name: "JWD Mens Henley Long Sleeve T-Shirt Cotton ",
-                    image: product5,
-                    rating: 4.9,
-                    sold: 2900
-                },
-                {
-                    name: "Mens T-Shirts Casual Zipper Turn-Down Blouse",
-                    image: product6,
-                    rating: 4.9,
-                    sold: 2900
-                },
-                {
-                    name: "VILOVE Women Hawaii Shirts Soft Cool Floral",
-                    image: product1,
-                    rating: 4.9,
-                    sold: 2900
-                },
-                {
-                    name: "Fantaslook V Neck T Shirts for Women Floral Summer",
-                    image: product2,
-                    rating: 4.9,
-                    sold: 2900
-                },
-                {
-                    name: "BELLZELY Womens Shirts Short Sleeve",
-                    image: product3,
-                    rating: 4.9,
-                    sold: 2900
-                },
-                {
-                    name: "Casual Men Shirt Long Sleeve Solid Color V Neck",
-                    image: product4,
-                    rating: 4.9,
-                    sold: 2900
-                },
-                {
-                    name: "JWD Mens Henley Long Sleeve T-Shirt Cotton ",
-                    image: product5,
-                    rating: 4.9,
-                    sold: 2900
-                },
-                {
-                    name: "Mens T-Shirts Casual Zipper Turn-Down Blouse",
-                    image: product6,
-                    rating: 4.9,
-                    sold: 2900
-                },
-                
-            ],
-            "Electronics": [],
-            "Beauty & Care": [
-                {
-                    name: "Fantaslook V Neck T Shirts for Women Floral Summer",
-                    image: product2,
-                    rating: 4.9,
-                    sold: 2900
-                },
-                {
-                    name: "BELLZELY Womens Shirts Short Sleeve",
-                    image: product3,
-                    rating: 4.9,
-                    sold: 2900
-                },
-            ],
-            "Home & Kitchen": [],
-            "Sports & Outdoors": [
-                {
-                    name: "Casual Men Shirt Long Sleeve Solid Color V Neck",
-                    image: product4,
-                    rating: 4.9,
-                    sold: 2900
-                },
-                {
-                    name: "JWD Mens Henley Long Sleeve T-Shirt Cotton ",
-                    image: product5,
-                    rating: 4.9,
-                    sold: 2900
-                },
-            ],
-            "Toys & Hobbies": [],
-            "Food & Beverage": [],
-            "Medicine": [],
-            "Category-A": [],
-            "Category-B": [],
-            "Category-C": [],
-            "Category-D": [],
-            
-        }
-        setSelectedCategory(0);
+        loadCategories();
     },[])
+
+    useEffect(() => {
+        if (selectedCategory >= 0) {
+            loadProducts();
+        }
+    },[selectedCategory])
+    
     return (
         <div className="w-11/12 lg:w-4/6 h-[54rem] sm:h-[48rem] flex flex-col items-center sm:items-start gap-4" >
             <div className="flex flex-row items-center gap-2 w-64 h-10 px-3 rounded-xl bg-gray-200 text-dbblue">
@@ -188,15 +117,16 @@ function StoreCategories() {
                 <div className="flex flex-row sm:flex-col justify-center w-full sm:w-64 gap-2">
                     
                     <ul className="flex flex-row sm:flex-col content-evenly items-stretch px-4 max-sm:overflow-x-scroll sm:overflow-y-scroll scrollbar-thin scrollbar-thumb-dbblue scrollbar-track-gray-300 scrollbar-thumb-rounded-xl scrollbar-track-rounded-xl flex-shrink sm:h-[38rem] text-base sm:text-xl text-dbblue text-center sm:text-left">
-                        {Object.keys(dataRef.current).map((e,i) => (<li onClick={()=>{setSelectedCategory(i)}} className={"hover:bg-black hover:bg-opacity-10 rounded-lg cursor-pointer py-3 px-2" + (i == selectedCategory ? " font-semibold" : "")} key={i}>{e}</li>))}
+                        {categoriesRef.current.map((e,i) => (<li onClick={()=>{setSelectedCategory(i)}} className={"hover:bg-black hover:bg-opacity-10 rounded-lg cursor-pointer py-3 px-2" + (i == selectedCategory ? " font-semibold" : "")} key={e.id}>{e.name}</li>))}
                     </ul>
                     <div className="flex flex-col sm:flex-row justify-center items-center gap-2">
                         <button onClick={prevCategory} className="rounded-full p-0.5 bg-black hover:bg-dbblue"><MdChevronLeft size="32px" color="white"/></button>
                         <button onClick={nextCategory} className="rounded-full p-0.5 bg-black hover:bg-dbblue"><MdChevronRight size="32px" color="white"/></button>
                     </div>
                 </div>
-                <div className="w-full h-[40rem]  flex flex-row flex-wrap gap-4 justify-center content-start overflow-y-scroll scrollbar-thin scrollbar-thumb-dbblue scrollbar-track-gray-300 scrollbar-thumb-rounded-xl scrollbar-track-rounded-xl">
-                    {dataRef.current[Object.keys(dataRef.current)[selectedCategory]]?.filter(e=>stringSearchMatch(e.name, searchQuery)).map(e => (<ProductCard name={e.name} image={e.image} rating={e.rating} sold={e.sold} />))}
+                <div className="w-full h-[40rem] py-1 flex flex-row flex-wrap gap-4 justify-center content-start overflow-y-scroll scrollbar-thin scrollbar-thumb-dbblue scrollbar-track-gray-300 scrollbar-thumb-rounded-xl scrollbar-track-rounded-xl">
+                    {products.length > 0 ? products.filter(e=>stringSearchMatch(e.name, searchQuery)).map(e => (<ProductCard key={e.id} name={e.name} image={e.image} rating={e.rating} sold={e.sold} />))
+                    : (<h1>{message[loadState]}</h1>)}
                 </div>
             </div>
             <Link to="/" className="flex flex-row items-center justify-center rounded-full p-2 gap-2 w-44 bg-dbblue text-white" >All Categories <MdEast size="20px" color="white"/></Link>
