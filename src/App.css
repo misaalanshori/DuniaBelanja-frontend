@@ -5,6 +5,10 @@
   text-align: center;
 }
 
+a.active {
+  font-weight: bolder;
+}
+
 .logo {
   height: 6em;
   padding: 1.5em;
