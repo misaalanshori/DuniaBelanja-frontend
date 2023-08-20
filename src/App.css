@@ -5,7 +5,7 @@
   text-align: center;
 }
 
-a.active {
+a.navlink.active {
   font-weight: bolder;
 }
 

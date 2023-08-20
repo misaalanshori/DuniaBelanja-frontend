@@ -8,6 +8,7 @@ export default defineConfig({
     react(), 
     ViteImageOptimizer({ 
       png: { quality: 75 },
+      jpg: { quality: 75 },
     }),
   ],
 });
