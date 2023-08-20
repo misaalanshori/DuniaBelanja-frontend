@@ -6,3 +6,6 @@ Vite + React
 2. Run `npm install`
 3. Run `npm run build`
 4. Static files will be generated to `./dist`
+
+## Deployment Notes
+- Make sure to rewrite all requests to `index.html` for SPA routing to work properly. View `vercel.json` for an example.
