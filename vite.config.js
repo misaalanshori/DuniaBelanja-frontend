@@ -11,4 +11,11 @@ export default defineConfig({
       jpg: { quality: 75 },
     }),
   ],
+  server: {
+    host: true,
+    port: 3000,
+    watch: {
+      usePolling: true
+    }
+  }
 });
