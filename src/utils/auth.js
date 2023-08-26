@@ -10,7 +10,8 @@ async function login(email, password, remember) {
     const requestOptions = {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'accept': 'application/json'
         },
         body: data
     };
