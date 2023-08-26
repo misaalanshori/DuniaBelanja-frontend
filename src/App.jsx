@@ -9,6 +9,8 @@ import Homepage from './homepage/Homepage';
 import Loginpage from './auth/Login';
 import Registerpage from './auth/Register';
 
+import Productspage from './products/Products';
+
 function ScrollToTop() {
   const { pathname } = useLocation();
 
@@ -29,6 +31,9 @@ function App() {
           <Route index element={<Homepage />} />
           <Route path="register" element={<Registerpage/>} />
           <Route path="login" element={<Loginpage/>} />
+          <Route path="products">
+            <Route index element={<Productspage/>} />
+          </Route>
         </Route>
         <Route path="*" element={<h1>404</h1>} />
       </Routes>
