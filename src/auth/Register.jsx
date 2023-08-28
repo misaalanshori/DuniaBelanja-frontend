@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { login } from '../utils/auth';
+import { register } from '../utils/auth';
 
 import registerimg from '../assets/images/storeisle.png'
 import { NavLink } from 'react-router-dom'
@@ -22,25 +22,25 @@ export default function Registerpage() {
     const [registerError, setRegisterError] = useState("");
     const navigate = useNavigate();
     async function registerHandler() {
-        // if (email && password) {
-        //     try {
-        //         setRegisterLoading(true);
-        //         await login(email, password, rememberState);
-        //         navigate('/');
-        //     } catch (error) {
-        //         setRegisterLoading(false);
-        //         setRegisterError(error);
-        //     }
-        // } else {
-        //     setRegisterError("Email and password cannot be empty!");
-        // }
+        if (formData.name && formData.email && formData.password && formData.passwordConfirm) {
+            try {
+                setRegisterLoading(true);
+                await register(formData.name, formData.email, formData.password, formData.passwordConfirm, rememberState);
+                navigate('/');
+            } catch (error) {
+                setRegisterLoading(false);
+                setRegisterError(error.toString());
+            }
+        } else {
+            setRegisterError("Please fill all the fields");
+        }
         
     }
     // console.log(formData)
     function updateFormData(e) {
         setFormData({
             ...formData,
-            [e.target.name]: e.target.value.trim()
+            [e.target.name]: e.target.value
         })
     }
     return (
@@ -73,7 +73,7 @@ export default function Registerpage() {
                         : <IoEyeOffOutline className='cursor-pointer' size="32" />}
                         </button>
                     </div>
-                    <div className='flex flex-row align-middle w-full border rounded-xl border-dbblue p-2 gap-2'>
+                    <div className={'flex flex-row align-middle w-full border rounded-xl border-dbblue p-2 gap-2 ' + (formData.password ? "" : "hidden")}>
                         <MdLockOutline size="32"/>
                         <input className='w-full text-black outline-none' type={showPassword ? "text" : "password"} placeholder="Konfirmasi Password Anda" name="passwordConfirm" value={formData.passwordConfirm} onChange={updateFormData}></input>
                         <button onClick={() => setShowPassword(!showPassword)}>
@@ -89,7 +89,7 @@ export default function Registerpage() {
                         </div>
                         
                     </div>
-                    <button className='rounded-md text-white bg-dbblue py-2' onClick={registerHandler} disabled={registerLoading}>{registerLoading ? "LOGGING IN" : "LOGIN"}</button>
+                    <button className='rounded-md text-white bg-dbblue py-2' onClick={registerHandler} disabled={registerLoading}>{registerLoading ? "REGISTERING" : "REGISTER"}</button>
                     {registerError ? <span className='w-full text-red-600 text-center'>{registerError}</span> : null}
                 </div>
 
