@@ -8,7 +8,7 @@ export default function Productspage() {
         <div className="relative w-full h-fit flex flex-col gap-8 justify-center items-center">
             <img src={hangerimg} className="w-full" />
             <div className="w-full px-2 md:px-16" >
-                <ProductBrowser enablePagination={true}/>
+                <ProductBrowser enablePagination={true} serverSearch={true}/>
             </div>
             <div className="w-full h-8 rounded-b-full bg-white absolute -bottom-8"></div>
         </div>
