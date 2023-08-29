@@ -137,7 +137,7 @@ export default function ProductBrowser({enablePagination, serverSearch}) {
         return searchWords.every(word => words.some(w => w.toLowerCase().includes(word.toLowerCase())))
     }
 
-    function serverSearch() {
+    function doServerSearch() {
         productsRef.current = {};
         stringSearchRef.current = serverSearchQuery;
         setPage(1);
@@ -158,7 +158,7 @@ export default function ProductBrowser({enablePagination, serverSearch}) {
     
     return (
       <div className="w-full h-fit flex flex-col items-center sm:items-start gap-4">
-        {enablePagination && Object.keys(paginationRef).length  ? (
+        {enablePagination ? (Object.keys(paginationRef).length ? (
         <div className="text-center sm:text-left text-lg" >
             <strong>Showing {paginationRef.total_page != 1 ? `${(page-1)*paginationRef.per_page+1} -` : ""} {products.length > paginationRef.per_page || paginationRef.total_page != 1 ? (page)*paginationRef.per_page : products.length}</strong> out
             <br />of {products.length > paginationRef.per_page || paginationRef.total_page != 1 ? paginationRef.per_page*paginationRef.total_page : products.length} Product
@@ -168,7 +168,7 @@ export default function ProductBrowser({enablePagination, serverSearch}) {
             <strong>Showing</strong>
             <br />Products
         </div>
-        )}
+        )) : null}
         
         {serverSearch 
         ? (
@@ -183,7 +183,7 @@ export default function ProductBrowser({enablePagination, serverSearch}) {
                     onChange={(e) => setServerSearchQuery(e.target.value)}
                     />
                 </div>
-                <button className="bg-dbblue rounded-xl h-10 aspect-square flex justify-center items-center" onClick={serverSearch}><MdSearch color="white" size="32px" /></button>
+                <button className="bg-dbblue rounded-xl h-10 aspect-square flex justify-center items-center" onClick={doServerSearch}><MdSearch color="white" size="32px" /></button>
             </div>
         
         ) 
