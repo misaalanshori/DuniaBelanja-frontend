@@ -4,8 +4,62 @@ import { useRef, useState, useEffect, useMemo } from 'react';
 
 import {MdChevronLeft, MdChevronRight, MdSearch} from 'react-icons/md';
 
+
+function rangeArray(start, end) {
+    if (start > end) {
+        throw new Error("Start value must be less than or equal to end value.");
+    }
+
+    const result = [];
+    for (let i = start; i < end; i++) {
+        result.push(i);
+    }
+    return result;
+}
+
+function Pagination({page, totalPage, visiblePage, onPageChange}) {
+    const [pageSection, setPageSection] = useState(Math.ceil(page / visiblePage) - 1 );
+    const maxPageSection = useMemo(() => Math.ceil(totalPage / visiblePage) - 1, [totalPage, visiblePage]);
+    const actualPage = page - 1;
+    
+    function setPage(newPage) {
+        onPageChange(newPage+1);
+    }
+
+    function prevPageSection() {
+        if (pageSection > 0) {
+            setPageSection(pageSection - 1);
+        }
+    }
+
+    function nextPageSection() {
+        if (pageSection < maxPageSection) {
+            setPageSection(pageSection + 1);
+        }
+    }
+    return (
+        <div className="flex flex-row items-center gap-2">
+            <button className="w-8" ><MdChevronLeft className={"" + (pageSection == 0 ? "hidden" : "")} size="32px" onClick={prevPageSection}/></button>
+            {
+                rangeArray(pageSection*visiblePage, Math.min((pageSection*visiblePage) + visiblePage, totalPage)).map(e => (
+                <button 
+                    className={"text-lg w-12 rounded-lg  " + (e == actualPage ? "bg-black text-white" : "") } 
+                    onClick={() => setPage(e)} 
+                    key={e}
+                >
+                    {e+1}
+                </button>
+                ))
+            }
+            
+            <button className="w-8" ><MdChevronRight className={"" + (pageSection == maxPageSection ? "hidden" : "")} size="32px" onClick={nextPageSection}/></button>
+        </div>
+    )
+}
+
+
 export default function ProductBrowser({enablePagination}) {
-    const [selectedCategory, setSelectedCategory] = useState(-1);
+    const [selectedCategory, setSelectedCategoryState] = useState(-1);
     const [products, setProducts] = useState([]);
     const [searchQuery, setSearchQuery] = useState("");
     const [loadState, setLoadState] = useState("loading");
@@ -14,7 +68,7 @@ export default function ProductBrowser({enablePagination}) {
 
     const categoriesRef = useRef([])
     const productsRef = useRef({})
-    const paginationRef = useRef({});
+    const paginationRef = productsRef.current[selectedCategory]?.pagination || {}
 
     const message = {
         "loading": "Loading products...",
@@ -22,12 +76,19 @@ export default function ProductBrowser({enablePagination}) {
         "error": "Failed to load products"
     }
 
+    function setSelectedCategory(categories) {
+        setSelectedCategoryState(categories);
+        setPage(1);
+    }
+
     async function loadCategories() {
         const response = await fetch(import.meta.env.VITE_API + "/api/categories");
-        const data = await response.json();
-        if (data.code == 200) {
+        let data;
+        if (response.status == 200 && (data = await response.json()).code == 200) {
             categoriesRef.current = data.data;
             setSelectedCategory(0);
+        } else {
+            setLoadState("error");
         }
     }
 
@@ -38,15 +99,17 @@ export default function ProductBrowser({enablePagination}) {
             setProducts(productsRef.current[selectedCategory][page]);
             setLoadState("loaded");
         } else {
-            const response = await fetch(import.meta.env.VITE_API + `/api/products?category_id=${categoriesRef.current[selectedCategory].id}?page=${page}`);
-            const data = await response.json();
-            if (data.code == 200) {
+            const response = await fetch(import.meta.env.VITE_API + `/api/products?category_id=${categoriesRef.current[selectedCategory].id}&page=${page}`);
+            let data;
+            if (response.status == 200 && (data = await response.json()).code == 200) {
                 setProducts(data.data.list);
                 // Store the products in a ref so we don't have to fetch it again
                 if (!productsRef.current[selectedCategory]) {
                     productsRef.current[selectedCategory] = {};
                 }
                 productsRef.current[selectedCategory][page] = data.data.list;
+                productsRef.current[selectedCategory].pagination = data.data.pagination;
+                console.log(paginationRef)
                 setLoadState("loaded");
             } else {
                 setLoadState("error");
@@ -83,29 +146,95 @@ export default function ProductBrowser({enablePagination}) {
     },[selectedCategory, page])
     
     return (
-        <div className="w-11/12 lg:w-4/6 h-[54rem] sm:h-[48rem] flex flex-col items-center sm:items-start gap-4" >
-            <div className="flex flex-row items-center gap-2 w-64 h-10 px-3 rounded-xl bg-gray-200 text-dbblue">
-                <MdSearch size="24px"/>
-                <input className="w-full h-full bg-transparent" type="text" placeholder="Search..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)}/>
-            </div>
-            <div className="flex flex-col sm:flex-row w-full h-full items-center" >
-                <div className="flex flex-row sm:flex-col justify-center w-full sm:w-64 gap-2">
-                    
-                    <ul className="flex flex-row sm:flex-col content-evenly items-stretch px-4 max-sm:overflow-x-scroll sm:overflow-y-scroll scrollbar-thin scrollbar-thumb-dbblue scrollbar-track-gray-300 scrollbar-thumb-rounded-xl scrollbar-track-rounded-xl flex-shrink sm:h-[38rem] text-base sm:text-xl text-dbblue text-center sm:text-left">
-                        {categoriesRef.current.map((e,i) => (<li onClick={()=>{setSelectedCategory(i)}} className={"hover:bg-black hover:bg-opacity-10 rounded-lg cursor-pointer py-3 px-2" + (i == selectedCategory ? " font-semibold" : "")} key={e.id}>{e.name}</li>))}
-                    </ul>
-                    <div className="flex flex-col sm:flex-row justify-center items-center gap-2">
-                        <button onClick={prevCategory} className="rounded-full p-0.5 bg-black hover:bg-dbblue"><MdChevronLeft size="32px" color="white"/></button>
-                        <button onClick={nextCategory} className="rounded-full p-0.5 bg-black hover:bg-dbblue"><MdChevronRight size="32px" color="white"/></button>
-                    </div>
-                </div>
-                <div className="w-full h-[40rem] py-1 flex flex-row flex-wrap gap-4 justify-center content-start overflow-y-scroll scrollbar-thin scrollbar-thumb-dbblue scrollbar-track-gray-300 scrollbar-thumb-rounded-xl scrollbar-track-rounded-xl">
-                    {products.length > 0 ? products.filter(e=>stringSearchMatch(e.name, searchQuery)).map(e => (<ProductCard key={e.id} name={e.name} image={e.image} rating={e.rating} sold={e.sold} />))
-                    : (<h1>{message[loadState]}</h1>)}
-                </div>
-            </div>
-            
-            
+      <div className="w-full h-fit flex flex-col items-center sm:items-start gap-4">
+        {enablePagination && Object.keys(paginationRef).length  ? (
+        <div className="text-center sm:text-left text-lg" >
+            <strong>Showing {(page-1)*paginationRef.per_page+1}-{(page)*paginationRef.per_page}</strong> out
+            <br />of {paginationRef.per_page*paginationRef.total_page} Product
         </div>
-    )
+        ) : (
+            <div className="text-center sm:text-left text-lg" >
+            <strong>Showing</strong>
+            <br />Products
+        </div>
+        )}
+        
+        <div className="flex flex-row items-center gap-2 w-64 h-10 px-3 rounded-xl bg-gray-200 text-dbblue">
+          <MdSearch size="24px" />
+          <input
+            className="w-full h-full bg-transparent"
+            type="text"
+            placeholder="Search..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+        <div className="flex flex-col sm:flex-row w-full h-full items-center">
+          <div className="flex flex-row sm:flex-col justify-center w-full sm:w-64 gap-2">
+            <ul className="flex flex-row sm:flex-col content-evenly items-stretch px-4 max-sm:overflow-x-scroll sm:overflow-y-scroll scrollbar-thin scrollbar-thumb-dbblue scrollbar-track-gray-300 scrollbar-thumb-rounded-xl scrollbar-track-rounded-xl flex-shrink sm:h-[38rem] text-base sm:text-xl text-dbblue text-center sm:text-left">
+              {categoriesRef.current.map((e, i) => (
+                <li
+                  onClick={() => {
+                    setSelectedCategory(i);
+                  }}
+                  className={
+                    "hover:bg-black hover:bg-opacity-10 rounded-lg cursor-pointer py-3 px-2" +
+                    (i == selectedCategory ? " font-semibold" : "")
+                  }
+                  key={e.id}
+                >
+                  {e.name}
+                </li>
+              ))}
+            </ul>
+            <div className="flex flex-col sm:flex-row justify-center items-center gap-2">
+              <button
+                onClick={prevCategory}
+                className="rounded-full p-0.5 bg-black hover:bg-dbblue"
+              >
+                <MdChevronLeft size="32px" color="white" />
+              </button>
+              <button
+                onClick={nextCategory}
+                className="rounded-full p-0.5 bg-black hover:bg-dbblue"
+              >
+                <MdChevronRight size="32px" color="white" />
+              </button>
+            </div>
+          </div>
+          <div className="w-full h-[40rem] py-1 flex flex-row flex-wrap gap-4 justify-center content-start overflow-y-scroll scrollbar-thin scrollbar-thumb-dbblue scrollbar-track-gray-300 scrollbar-thumb-rounded-xl scrollbar-track-rounded-xl">
+            {products.length > 0 ? (
+              products
+                .filter((e) => stringSearchMatch(e.name, searchQuery))
+                .map((e) => (
+                  <ProductCard
+                    key={e.id}
+                    name={e.name}
+                    image={e.image}
+                    rating={e.rating}
+                    sold={e.sold}
+                  />
+                ))
+            ) : (
+              <h1>{message[loadState]}</h1>
+            )}
+          </div>
+        </div>
+        {enablePagination && Object.keys(paginationRef).length ? (
+          <div className="flex flex-col-reverse max-sm:gap-2 sm:flex-row items-center w-full">
+            <span className="flex-1">
+              Page {page} of {paginationRef.total_page}
+            </span>
+            <div>
+              <Pagination
+                page={page}
+                totalPage={paginationRef.total_page}
+                visiblePage={5}
+                onPageChange={setPage}
+              />
+            </div>
+          </div>
+        ) : null}
+      </div>
+    );
 }

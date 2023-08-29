@@ -49,10 +49,10 @@ export default function Homepage() {
             
         </div>
 
-        <div className="w-full flex flex-col items-center gap-12">
+        <div className="w-11/12 lg:w-4/6 self-center flex flex-col items-center gap-12">
             <h1 className="text-center text-5xl sm:text-8xl font-semibold">PRODUCT<br/>CATEGORIES</h1>
             <ProductBrowser/>
-            <div className="w-11/12 lg:w-4/6 flex flex-col items-center sm:items-start gap-4" >
+            <div className="w-full flex flex-col items-center sm:items-start gap-4" >
                 <Link to="/products" className="flex flex-row items-center justify-center rounded-full p-2 gap-2 w-44 bg-dbblue text-white" >All Categories <MdEast size="20px" color="white"/></Link>
             </div>
         </div>
