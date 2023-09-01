@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { register } from '../utils/auth';
+import { register, isLoggedIn } from '../utils/auth';
 
 import registerimg from '../assets/images/storeisle.png'
 import { NavLink } from 'react-router-dom'
@@ -20,7 +20,18 @@ export default function Registerpage() {
     })
     const [registerLoading, setRegisterLoading] = useState(false);
     const [registerError, setRegisterError] = useState("");
+    const [loggedIn, setLoggedIn] = useState(false);
     const navigate = useNavigate();
+
+    useEffect(() => {
+        if (isLoggedIn()) {
+            setLoggedIn(true);
+            setTimeout(() => {
+                navigate('/');
+            }, 1000);
+        }
+    })
+
     async function registerHandler() {
         if (formData.name && formData.email && formData.password && formData.passwordConfirm) {
             try {
@@ -43,6 +54,16 @@ export default function Registerpage() {
             [e.target.name]: e.target.value
         })
     }
+
+    if (loggedIn) {
+        return (
+            <div className="relative top-6 bg-white rounded-b-3xl max-md:overflow-hidden w-full h-screen flex flex-col text-center text-2xl">
+                <h1>Already Logged In!</h1> 
+                <h1>You will be redirected to our homepage</h1> 
+            </div>
+        )
+    }
+
     return (
         <div className="relative top-6 bg-white rounded-b-3xl max-md:overflow-hidden w-full h-screen flex flex-col md:flex-row justify-stretch content-stretch">
             <div className="flex flex-col gap-4 w-full text-dbblue py-12 sm:py-24 px-12 sm:px-24">

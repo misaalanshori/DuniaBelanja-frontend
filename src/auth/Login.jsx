@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { login } from '../utils/auth';
+import { login, isLoggedIn } from '../utils/auth';
 
 import loginimg from '../assets/images/loginimg.jpg'
 import { NavLink } from 'react-router-dom'
@@ -18,7 +18,18 @@ export default function Loginpage() {
     })
     const [loginLoading, setLoginLoading] = useState(false);
     const [loginError, setLoginError] = useState("");
+    const [loggedIn, setLoggedIn] = useState(false);
     const navigate = useNavigate();
+
+    useEffect(() => {
+        if (isLoggedIn()) {
+            setLoggedIn(true);
+            setTimeout(() => {
+                navigate('/');
+            }, 1000);
+        }
+    })
+
     async function loginHandler() {
         if (formData.email && formData.password) {
             try {
@@ -41,6 +52,16 @@ export default function Loginpage() {
             [e.target.name]: e.target.value
         })
     }
+
+    if (loggedIn) {
+        return (
+            <div className="relative top-6 bg-white rounded-b-3xl max-md:overflow-hidden w-full h-screen flex flex-col text-center text-2xl">
+                <h1>Already Logged In!</h1> 
+                <h1>You will be redirected to our homepage</h1> 
+            </div>
+        )
+    }
+
     return (
         <div className="relative top-6 bg-white rounded-b-3xl max-md:overflow-hidden w-full h-screen flex flex-col md:flex-row justify-stretch content-stretch">
             <div className="flex flex-col gap-4 w-full text-dbblue py-12 sm:py-24 px-12 sm:px-24">
