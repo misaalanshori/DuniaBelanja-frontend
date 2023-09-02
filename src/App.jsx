@@ -10,6 +10,7 @@ import Loginpage from './auth/Login';
 import Registerpage from './auth/Register';
 
 import Productspage from './products/Products';
+import ProductDetailspage from './products/ProductDetails';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -33,6 +34,7 @@ function App() {
           <Route path="login" element={<Loginpage/>} />
           <Route path="products">
             <Route index element={<Productspage/>} />
+            <Route path=":productid" element={<ProductDetailspage/>} />
           </Route>
         </Route>
         <Route path="*" element={<h1>404</h1>} />
