@@ -18,7 +18,7 @@ export default function ProductDetailspage() {
         setQuantity(quantity + 1);
     }
     return (
-        <div className="flex flex-col md:flex-row py-4 sm:p-16 xl:px-32 2xl:px-96 w-full max-md:gap-4 max-md:items-center">
+        <div className="relative flex flex-col md:flex-row py-4 sm:p-16 xl:px-32 2xl:px-96 w-full min-h-[75vh] max-md:gap-4 max-md:items-center">
             <div>
                 <img src={product1}></img>
             </div>
@@ -46,6 +46,7 @@ export default function ProductDetailspage() {
                     
                 </div>
             </div>
+            <div className="w-screen h-8 rounded-b-full bg-white absolute left-0 -bottom-8"></div>
         </div>
     )
 }
