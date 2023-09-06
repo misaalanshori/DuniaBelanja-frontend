@@ -1,14 +1,38 @@
 import { useParams } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MdStarOutline } from "react-icons/md";
-
-import product1 from '../assets/images/product1.png'
 
 export default function ProductDetailspage() {
     const { productid } = useParams();
     const [ quantity, setQuantity ] = useState(1);
+    const [ product, setProduct ] = useState(null);
+    const [ error, setError ] = useState(false);
+
+    const formatter = Intl.NumberFormat('en', { notation: 'compact' });
+    const currencyFormatter = Intl.NumberFormat('id', {
+        style: 'currency',
+        currency: 'IDR',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+    });
+
     const desc = "The floral button down shirt for women embody romance and blooming flowers, perfect for summer with a cool feeling and attractive colors.\nWomens Summer Tees Tops, Casual Hawaiian Shirts for some occasions like daily look, going out, hawaiian vacation, holiday, beach etc."
     
+    async function loadProduct() {
+        const response = await fetch(import.meta.env.VITE_API + `/api/products/${productid}`);
+        let data;
+        if (response.status == 200 && (data = await response.json()).code == 200) {
+            setProduct(data.data);
+            console.log(data.data);
+        } else {
+            setError(true);
+        }
+    }
+
+    useEffect(() => {
+        loadProduct();
+    }, [productid]);
+
     function decreaseQuantity() {
         if (quantity > 1) {
             setQuantity(quantity - 1);
@@ -17,20 +41,31 @@ export default function ProductDetailspage() {
     function increaseQuantity() {
         setQuantity(quantity + 1);
     }
+
+    if (!product && !error) {
+        return (
+            <h1 className="text-center text-3xl min-h-[75vh] p-4" >Loading...</h1>
+        )
+    } else if (!product && error) {
+        return (
+            <h1 className="text-center text-3xl min-h-[75vh] p-4" >Product not found</h1>
+        )
+    }
+
     return (
-        <div className="relative flex flex-col md:flex-row py-4 sm:p-16 xl:px-32 2xl:px-96 w-full min-h-[75vh] max-md:gap-4 max-md:items-center">
-            <div>
-                <img src={product1}></img>
+        <div className="relative flex flex-col md:flex-row py-4 sm:p-16 lg:px-32 2xl:px-96 w-full min-h-[75vh] gap-4 max-md:items-center">
+            <div className="flex justify-center items-start " >
+                <img className="max-md:w-4/5 object-contain" src={product.image}></img>
             </div>
             <div className="flex flex-col w-3/4 gap-2 break-words">
-                <h1 className="text-3xl font-semibold">VILOVE Women Hawaii Shirts Soft Cool Floral</h1>
+                <h1 className="text-3xl font-semibold">{product.name}</h1>
                 <div>
-                    <div className="flex flex-row items-center"><MdStarOutline size="20px" color="orange"/> 4.9 ratings <span className="mx-4">•</span> 2.9k+ sold</div>
+                    <div className="flex flex-row items-center"><MdStarOutline size="20px" color="orange"/> {product.rating} ratings <span className="mx-4">•</span> {formatter.format(product.sold)}+ sold</div>
                 </div>
-                <p className="whitespace-pre-wrap">{desc}</p>
+                <p className="whitespace-pre-wrap">{product.description}</p>
                 <div className=" flex flex-col-reverse gap-4 min-[400px]:flex-row">
                     <div className="flex-1 flex flex-col gap-2 max-[400px]:text-center">
-                        <span className="text-2xl font-semibold">Rp 150.000</span>
+                        <span className="text-2xl font-semibold">{currencyFormatter.format(product.price)}</span>
                         <button className="text-xl bg-dbblue text-white p-1 rounded-xl" >Buy</button>
                     </div>
                     <div className="flex-1 flex flex-row justify-center min-[400px]:justify-end">

@@ -242,6 +242,7 @@ export default function ProductBrowser({enablePagination, serverSearch}) {
                 .map((e) => (
                   <ProductCard
                     key={e.id}
+                    id={e.id}
                     name={e.name}
                     image={e.image}
                     rating={e.rating}
