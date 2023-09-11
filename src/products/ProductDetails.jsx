@@ -8,6 +8,10 @@ export default function ProductDetailspage() {
     const [ product, setProduct ] = useState(null);
     const [ error, setError ] = useState(false);
 
+    if (!quantity || quantity < 1) {
+        setQuantity(1)
+    }
+
     const formatter = Intl.NumberFormat('en', { notation: 'compact' });
     const currencyFormatter = Intl.NumberFormat('id', {
         style: 'currency',
@@ -15,15 +19,12 @@ export default function ProductDetailspage() {
         minimumFractionDigits: 0,
         maximumFractionDigits: 0,
     });
-
-    const desc = "The floral button down shirt for women embody romance and blooming flowers, perfect for summer with a cool feeling and attractive colors.\nWomens Summer Tees Tops, Casual Hawaiian Shirts for some occasions like daily look, going out, hawaiian vacation, holiday, beach etc."
-    
+ 
     async function loadProduct() {
         const response = await fetch(import.meta.env.VITE_API + `/api/products/${productid}`);
         let data;
         if (response.status == 200 && (data = await response.json()).code == 200) {
             setProduct(data.data);
-            console.log(data.data);
         } else {
             setError(true);
         }

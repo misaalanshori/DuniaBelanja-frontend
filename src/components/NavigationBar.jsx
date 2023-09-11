@@ -12,7 +12,6 @@ export default function NavigationBar() {
         try {
             const userProfile = await getProfile();
             setUserProfile(userProfile);
-            console.log(userProfile)
         } catch (error) {
             setUserProfile(null);
         }
