@@ -198,7 +198,7 @@ export default function ProductBrowser({enablePagination, serverSearch}) {
                     image={e.image}
                     rating={e.rating}
                     sold={e.sold}
-                    price={e.price}
+                    price={e.selling_price}
                   />
                 ))
             ) : (

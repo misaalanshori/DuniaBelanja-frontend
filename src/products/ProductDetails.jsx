@@ -66,7 +66,7 @@ export default function ProductDetailspage() {
                 <p className="whitespace-pre-wrap">{product.description}</p>
                 <div className=" flex flex-col-reverse gap-4 min-[400px]:flex-row">
                     <div className="flex-1 flex flex-col gap-2 max-[400px]:text-center">
-                        <span className="text-2xl font-semibold">{currencyFormatter.format(product.price)}</span>
+                        <span className="text-2xl font-semibold">{currencyFormatter.format(product.selling_price)}</span>
                         <Link to={`/transaction?productid=${product.id}&quantity=${quantity}`} className="text-xl text-center bg-dbblue text-white p-1 rounded-xl" >Buy</Link>
                     </div>
                     <div className="flex-1 flex flex-row justify-center min-[400px]:justify-end">
