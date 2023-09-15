@@ -15,6 +15,7 @@ export default function Transactionpage() {
     });
     const [saveInfo, setSaveInfo] = useState(false);
     const [error, setError] = useState(null);
+    const [processing, setProcessing] = useState(false);
     const [orderData, setOrderData] = useState(null)
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
@@ -104,7 +105,47 @@ export default function Transactionpage() {
         } else {
             localStorage.removeItem("shippingaddress");
         }
-        console.log("Pay: ",orderData,formData);
+        // console.log("Pay: ",orderData,formData);
+        setProcessing(true);
+        const requestData = new URLSearchParams();
+        requestData.append('address', `${formData.address}, ${formData.city}, ${formData.zip}`);
+        requestData.append('phone', formData.phone);
+        requestData.append('quantity', searchParams.get('quantity'));
+        requestData.append('product_id', searchParams.get('productid'));
+        console.log(requestData)
+        const bearerToken = getToken();
+        const requestOptions = {
+            method: 'POST',
+            headers: {
+                "Authorization": "Bearer " + bearerToken,
+                'Accept': 'application/json'
+            },
+            body: requestData
+        }
+        
+        const response = await fetch(import.meta.env.VITE_API + `/api/checkout`, requestOptions);
+        let data;
+        if (response.status == 200 && (data = await response.json()).code == 200) {
+            const paymentWindow = window.open(data.data.payment_url, "Payment", "width=500,height=800");
+            console.log(paymentWindow)
+            if (paymentWindow) {
+                const closeWindow = new Promise((resolve, reject) => {
+                    const interval = setInterval(() => {
+                        if (paymentWindow.closed) {
+                            clearInterval(interval);
+                            resolve(true);
+                        }
+                    }, 100);
+                })
+                await closeWindow;
+                setProcessing(false);
+                navigate('/orders');
+            } else {
+                setProcessing(false);
+            }
+        } else {
+            // setLoadState("error");
+        }
     }
 
     if (!orderData && !error) {
@@ -151,7 +192,7 @@ export default function Transactionpage() {
                     <div onClick={() => setSaveInfo(!saveInfo)} className='sm:w-full flex flex-row align-middle gap-1 cursor-pointer'>
                         <input checked={saveInfo} type="checkbox" readOnly/><span>Save information for next purchase</span>
                     </div>
-                    <button onClick={payAction} className='rounded-xl bg-dbblue text-white p-1.5' >Pay</button>
+                    <button onClick={payAction} className='rounded-xl bg-dbblue text-white p-1.5' disabled={processing} >{processing ? "Processing..." : "Pay"}</button>
                     {
                         error && <span className='w-full text-center text-red-500 text-lg'>{errors[error]}</span>
                     }
